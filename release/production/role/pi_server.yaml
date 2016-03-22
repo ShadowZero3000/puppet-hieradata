@@ -52,7 +52,7 @@ pi_profiles::etherpad::etherpad_users: {}
 pi_profiles::nginx::vhosts:
   dynamics:
     server_name: ['~^(www\.)?(?<domain>.+)$']
-    www_root: '/var/www/$domain/doc'
+    www_root: '/var/www/hosts/$domain/doc'
     use_default_location: false
     index_files: []
   pad.pureinsomnia.com:
