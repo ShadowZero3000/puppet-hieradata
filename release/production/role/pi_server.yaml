@@ -81,7 +81,7 @@ pi_profiles::nginx::locations:
       CONTENT_TYPE: $content_type
       CONTENT_LENGTH: $content_length
   dynamics_static_stuff:
-    vhost: 'dyamics'
+    vhost: 'dynamics'
     www_root: '/var/www/$domain/doc'
     location: '~* ^.+.(jpg|jpeg|gif|css|png|js|ico)$'
     location_cfg_append:
