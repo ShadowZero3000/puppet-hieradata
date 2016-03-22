@@ -62,10 +62,10 @@ pi_profiles::nginx::locations:
   dynamics_main:
     vhost: 'dynamics'
     www_root: '/var/www/hosts/$domain/docs'
+    try_files: "$uri $uri/ @rewrite"
     location: '/'
     location_custom_cfg:
       index: index.html index.htm index.php
-      try_files: $uri $uri/ /index.php?q=$uri&$args
   dynamics_cgi:
     vhost: 'dynamics'
     www_root: '/var/www/hosts/$domain/docs'
