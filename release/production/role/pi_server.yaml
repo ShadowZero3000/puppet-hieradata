@@ -1,0 +1,106 @@
+---
+# NodeJS
+nodejs::make_install: false
+nodejs::target_dir: '/opt/node'
+
+# MySQL
+mysql::server::root_password: >
+  ENC[PKCS7,MIIBeQYJKoZIhvcNAQcDoIIBajCCAWYCAQAxggEhMIIBHQIBADAFMAACAQEw
+  DQYJKoZIhvcNAQEBBQAEggEAEB+XLQO/g2fW5mHRu92M8NhP/S7nUF+zWeXC
+  MvyGEEeuY0WEp82AaJQEOowmCMgr7LbTr6TQTHENTanhBn5e0k0PazQVX085
+  vzttiNQA0cAJoDJIzdbn8p+ObLH67uh4GdS3GnLPZzqnsCORWlio1jJfJjpN
+  wpYow8TfV3tfJjPSGy7jOq04I+D5TniXFsbfax+6YAGpiygF78FevXkqduCV
+  MWvl3BMAdb0dcgWUnjEkF5MgLxUjLJZlp66DShL1cd2sfs4RADSAAdCPl3Gz
+  lCRmNXXzQtHue7j0Ni97CjaENUk96rZTRuccQ8ZddYPyl4Yzk+jwClgaKqUo
+  bcL3nTA8BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDcUsvYSZt9J2H5Mt4d
+  Kt3QgBCEtCW3raEp6lAENpdXCebc]
+mysql::server::service_provider: systemd
+
+# Teamspeak
+ts3server::licensepath: /opt/static/teamspeak/
+ts3server::version: 3.0.10.3
+ts3server::params::repo_url: http://dl.4players.de/ts/releases/
+
+##################################
+# Profiles -----------------------
+##################################
+# Etherpad
+pi_profiles::etherpad::etherpad_title: 'Pure Insomnia Etherpad'
+pi_profiles::etherpad::etherpad_root: '/opt/etherpad'
+pi_profiles::etherpad::etherpad_session_key: '123456'
+pi_profiles::etherpad::etherpad_database_user: 'etherpad_user'
+pi_profiles::etherpad::etherpad_database_password: >
+  ENC[PKCS7,MIIBeQYJKoZIhvcNAQcDoIIBajCCAWYCAQAxggEhMIIBHQIBADAFMAACAQEw
+  DQYJKoZIhvcNAQEBBQAEggEAZEaT5Jptf5f4W1fW8vISbND7UYxYsyLH9l2y
+  uyM94Wm+4UPlIiesj8DNAxbvNH3zAhzVIUvUE9IM+GEc+pONy9BhuX5FHJ4S
+  PY8N08q0q5A8ERdxwO/00n5K/6j6O4VhkOtMTUnYFNF6zIQSMtvMlGS0H9wh
+  AqHznknF3qgJL0bbddk3pBHtvs8aztOhqyFXTFNLGDJP66qchqBlAd7fhjn8
+  mP9fzYUUizyRVPa2ysnJjQi6tPxCKT6cM0kwgT1yIlhMDSLA3NQEccl1QKDn
+  yyTzrUKgQFcvvXVxG5pEhazSUg8fi7iYahozadk/G6M+1yvBgguuBEyPCkAK
+  FfU0kDA8BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBAIKJxmNnVxgbn7cYVL
+  Hv9zgBComAVlf2WWNEMFcS6ft/nV]
+pi_profiles::etherpad::etherpad_users: {}
+
+
+# Nginx
+pi_profiles::nginx::vhosts:
+  dynamics:
+    server_name: ['~^(www\.)?(?<domain>.+)$']
+    www_root: '/var/www/$domain/doc'
+    use_default_location: false
+    index_files: []
+  pad.pureinsomnia.com:
+    server_name: ['pad.pureinsomnia.com']
+    proxy: 'http://localhost:9001'
+pi_profiles::nginx::locations:
+  dynamics_main:
+    vhost: 'dynamics'
+    location: '/'
+    location_custom_cfg:
+      index: index.html index.htm index.php
+      try_files: $uri $uri/ /index.php?q=$uri&$args
+  dynamics_cgi:
+    vhost: 'dynamics'
+    location: '~ [^/]\.php(/|$)'
+    fastcgi: 'unix:/var/run/php5-fpm.sock'
+    location_cfg_append:
+      fastcgi_split_path_info: '^(.+\.php)(/.+)$'
+      fastcgi_index: 'index.php'
+    fastcgi_param:
+      SCRIPT_FILENAME: $document_root$fastcgi_script_name
+      QUERY_STRING: $query_string
+      REQUEST_METHOD: $request_method
+      CONTENT_TYPE: $content_type
+      CONTENT_LENGTH: $content_length
+  dynamics_static_stuff:
+    vhost: 'dyamics'
+    location: '~* ^.+.(jpg|jpeg|gif|css|png|js|ico)$'
+    location_cfg_append:
+      access_log: off
+      expires: 30d
+
+# Users
+pi_profiles::users::users:
+  theinsomniac:
+    password: 'default'
+    managehome: true
+    ensure: 'present'
+    name: 'theinsomniac'
+    require: Group[theinsomniac]
+pi_profiles::users::groups:
+  theinsomniac:
+    name: 'theinsomniac'
+
+# Authorized Keys
+pi_profiles::ssh::authorized_keys:
+  Dominance:
+    ensure: present
+    key: 'AAAAB3NzaC1yc2EAAAABJQAAAQEAsp1454g8s0o2QaCvpWL0ERDnWEdGl7QL25q1cwk0VJza+PEyGewk0O/PrWiUOSUPWMntpg63SiUA82Dc9Tc5yIeMbvdejmNQch/zQo5lj63sVjoM2pJmFqan9I6QUD8N78KvdI8Vyv9+22mTLT5B3eoKNM0fcDfqDixsNl7ATXhirFMBg0ZYfQhNLiOY9UCy+J/oMKrB8m5dk7o0o0ZhL1nGRCnC1nv/1xFCP0xQvOBInJaWG49nO+aOyVMHGFc15xIxbDbKOPrYPNHBgXCz1dVzJ6z/gXaHZRuKcg+wRVaKRrTxrvk/WrWF3uVHj/h8MT9oemVrLqXYPi5IrTzXGw=='
+    user: 'sparrow'
+    type: 'ssh-rsa'
+
+
+# Yeah, this is ignored
+pi_profiles::owncloud::ssl: true
+pi_profiles::owncloud::servername: owncloud.pureinsomnia.com
+pi_profiles::owncloud::webserver: nginx
