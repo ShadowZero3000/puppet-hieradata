@@ -61,12 +61,14 @@ pi_profiles::nginx::vhosts:
 pi_profiles::nginx::locations:
   dynamics_main:
     vhost: 'dynamics'
+    www_root: '/var/www/$domain/doc'
     location: '/'
     location_custom_cfg:
       index: index.html index.htm index.php
       try_files: $uri $uri/ /index.php?q=$uri&$args
   dynamics_cgi:
     vhost: 'dynamics'
+    www_root: '/var/www/$domain/doc'
     location: '~ [^/]\.php(/|$)'
     fastcgi: 'unix:/var/run/php5-fpm.sock'
     location_cfg_append:
@@ -80,6 +82,7 @@ pi_profiles::nginx::locations:
       CONTENT_LENGTH: $content_length
   dynamics_static_stuff:
     vhost: 'dyamics'
+    www_root: '/var/www/$domain/doc'
     location: '~* ^.+.(jpg|jpeg|gif|css|png|js|ico)$'
     location_cfg_append:
       access_log: off
