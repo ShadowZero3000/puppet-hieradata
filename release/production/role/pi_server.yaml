@@ -1,4 +1,11 @@
 ---
+classes:
+  - pi_profiles::webserver
+    pi_profiles::ts3server
+    pi_profiles::ssh
+    pi_profiles::sshd
+    pi_profiles::users
+    pi_profiles::etherpad
 # NodeJS
 nodejs::make_install: false
 nodejs::target_dir: '/opt/node'
