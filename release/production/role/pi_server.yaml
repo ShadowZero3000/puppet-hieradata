@@ -1,7 +1,7 @@
 ---
 classes:
   - pi_profiles::webserver
-  - pi_profiles::ts3server
+  #- pi_profiles::ts3server
   - pi_profiles::ssh
   - pi_profiles::sshd
   - pi_profiles::users
