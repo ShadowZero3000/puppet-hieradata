@@ -5,21 +5,22 @@ classes:
   - pi_profiles::ssh
   - pi_profiles::sshd
   - pi_profiles::users
+  - pi_profiles::ssl
 # NodeJS
 nodejs::make_install: false
 nodejs::target_dir: '/opt/node'
 
 # MySQL
 mysql::server::root_password: >
-  ENC[PKCS7,MIIBeQYJKoZIhvcNAQcDoIIBajCCAWYCAQAxggEhMIIBHQIBADAFMAACAQEw
-  DQYJKoZIhvcNAQEBBQAEggEAEB+XLQO/g2fW5mHRu92M8NhP/S7nUF+zWeXC
-  MvyGEEeuY0WEp82AaJQEOowmCMgr7LbTr6TQTHENTanhBn5e0k0PazQVX085
-  vzttiNQA0cAJoDJIzdbn8p+ObLH67uh4GdS3GnLPZzqnsCORWlio1jJfJjpN
-  wpYow8TfV3tfJjPSGy7jOq04I+D5TniXFsbfax+6YAGpiygF78FevXkqduCV
-  MWvl3BMAdb0dcgWUnjEkF5MgLxUjLJZlp66DShL1cd2sfs4RADSAAdCPl3Gz
-  lCRmNXXzQtHue7j0Ni97CjaENUk96rZTRuccQ8ZddYPyl4Yzk+jwClgaKqUo
-  bcL3nTA8BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDcUsvYSZt9J2H5Mt4d
-  Kt3QgBCEtCW3raEp6lAENpdXCebc]
+  ENC[PKCS7,MIIBiQYJKoZIhvcNAQcDoIIBejCCAXYCAQAxggEhMIIBHQIBADAFMAACAQEw
+  DQYJKoZIhvcNAQEBBQAEggEAfAWlOFbP9f+KAWIkQOmv9tUsUN8oDxhotG/I
+  iIVLq1UsGyRB2jmC5ScfHV4BceI03y7X8bQFvNI9BPbofKD7NZ4Cwsnt7Eyw
+  08OvraAKiLFj8vac/No5Yvzc546CASGbwUSDCpE9/3RfAZUY4uAz6kJAR64P
+  CGABD6MVm/KUgQU8qGMxhtv5DQz/VDYzBa5w4rCUNqokEwNMrC2J04N0KLfY
+  1f1w90Yrp+kmc16kgoBleUZfbyGorGjgWPechrmSgfImMnM5NsXizu2RO+ZV
+  6+rxRjmOrfJcWUtXDieYxxWQcsefOhgWTSKlRfcL5R1rIP+m5xELbo534Rjf
+  UHzzrzBMBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDTacjooqq2lqfxrpHM
+  C6KVgCCks3K7UvBB+m7YhCwLuFJBnH1UPswTLTCkIVqiGdY95g==]
 mysql::server::service_provider: systemd
 
 # Teamspeak
@@ -50,24 +51,161 @@ pi_profiles::etherpad::etherpad_users: {}
 
 # Nginx
 pi_profiles::nginx::vhosts:
-  dynamics:
+  10-pureinsomnia.com-http:
+    server_name: ['~^(www\.)?pureinsomnia.com$']
+    www_root: '/var/www/hosts/pureinsomnia.com/docs'
+    vhost_cfg_append:
+      return: '301 https://$host$request_uri'
+  10-codethat.rocks-http:
+    server_name: ['~^(www\.)?codethat.rocks$']
+    www_root: '/var/www/hosts/codethat.rocks/docs'
+    vhost_cfg_append:
+      return: '301 https://$host$request_uri'
+  #10-eve.pureinsomnia.com-http:
+  #  server_name: ['~^(www\.)?eve.pureinsomnia.com$']
+  #  www_root: '/var/www/hosts/eve.pureinsomnia.com/docs'
+  #  vhost_cfg_append:
+  #    return: '301 https://$host$request_uri'
+  20-pureinsomnia.com:
+    server_name: ['~^(www\.)?pureinsomnia.com$']
+    www_root: '/var/www/hosts/pureinsomnia.com/docs'
+    listen_port: 443
+    use_default_location: false
+    index_files: []
+    ssl: true
+    # Must have!!!
+    ssl_port: 443
+    ssl_cert: /etc/letsencrypt/live/www.pureinsomnia.com/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/www.pureinsomnia.com/privkey.pem
+  20-codethat.rocks:
+    server_name: ['~^(www\.)?codethat.rocks$']
+    www_root: '/var/www/hosts/codethat.rocks/docs'
+    listen_port: 443
+    use_default_location: false
+    index_files: []
+    ssl: true
+    # Must have!!!
+    ssl_port: 443
+    ssl_cert: /etc/letsencrypt/live/www.codethat.rocks/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/www.codethat.rocks/privkey.pem
+  20-eve.pureinsomnia.com:
+    server_name: ['~^(www\.)?eve.pureinsomnia.com$']
+    www_root: '/var/www/hosts/eve.pureinsomnia.com/docs'
+    listen_port: 443
+    use_default_location: false
+    index_files: []
+    ssl: true
+    # Must have!!!
+    ssl_port: 443
+    ssl_cert: /etc/letsencrypt/live/eve.pureinsomnia.com/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/eve.pureinsomnia.com/privkey.pem
+  90-dynamics:
     server_name: ['~^(www\.)?(?<domain>.+)$']
     www_root: '/var/www/hosts/$domain/docs'
     use_default_location: false
     index_files: []
-  pad.pureinsomnia.com:
+  30-pad.pureinsomnia.com:
     server_name: ['pad.pureinsomnia.com']
     proxy: 'http://localhost:9001'
 pi_profiles::nginx::locations:
+  pureinsomnia.com_main:
+    vhost: '20-pureinsomnia.com'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/pureinsomnia.com/docs'
+    try_files:
+      - '$uri'
+      - '$uri/'
+      - '/index.php?q=$uri&$args'
+    location: '/'
+    location_custom_cfg:
+      index: index.html index.htm index.php
+  pureinsomnia.com_cgi:
+    vhost: '20-pureinsomnia.com'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/pureinsomnia.com/docs'
+    location: '~ [^/]\.php(/|$)'
+    fastcgi: 'unix:/var/run/php5-fpm.sock'
+    location_cfg_append:
+      fastcgi_split_path_info: '^(.+\.php)(/.+)$'
+      fastcgi_index: 'index.php'
+    fastcgi_param:
+      SCRIPT_FILENAME: $document_root$fastcgi_script_name
+      QUERY_STRING: $query_string
+      REQUEST_METHOD: $request_method
+      CONTENT_TYPE: $content_type
+      CONTENT_LENGTH: $content_length
+  codethat.rocks_main:
+    vhost: '20-codethat.rocks'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/codethat.rocks/docs'
+    try_files:
+      - '$uri'
+      - '$uri/'
+      - '/index.php?q=$uri&$args'
+    location: '/'
+    location_custom_cfg:
+      index: index.html index.htm index.php
+    raw_prepend:
+      - if ($http_origin ~* pureinsomnia\.com) { add_header 'Access-Control-Allow-Origin' "$http_origin"; }
+  codethat.rocks_cgi:
+    vhost: '20-codethat.rocks'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/codethat.rocks/docs'
+    location: '~ [^/]\.php(/|$)'
+    fastcgi: 'unix:/var/run/php5-fpm.sock'
+    location_cfg_append:
+      fastcgi_split_path_info: '^(.+\.php)(/.+)$'
+      fastcgi_index: 'index.php'
+    fastcgi_param:
+      SCRIPT_FILENAME: $document_root$fastcgi_script_name
+      QUERY_STRING: $query_string
+      REQUEST_METHOD: $request_method
+      CONTENT_TYPE: $content_type
+      CONTENT_LENGTH: $content_length
+  eve.pureinsomnia.com_main:
+    vhost: '20-eve.pureinsomnia.com'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/eve.pureinsomnia.com/docs'
+    try_files:
+      - '$uri'
+      - '$uri/'
+      - '/index.php?q=$uri&$args'
+    location: '/'
+    location_custom_cfg:
+      index: index.html index.htm index.php
+  eve.pureinsomnia.com_cgi:
+    vhost: '20-eve.pureinsomnia.com'
+    ssl: true
+    ssl_only: true
+    www_root: '/var/www/hosts/eve.pureinsomnia.com/docs'
+    location: '~ [^/]\.php(/|$)'
+    fastcgi: 'unix:/var/run/php5-fpm.sock'
+    location_cfg_append:
+      fastcgi_split_path_info: '^(.+\.php)(/.+)$'
+      fastcgi_index: 'index.php'
+    fastcgi_param:
+      SCRIPT_FILENAME: $document_root$fastcgi_script_name
+      QUERY_STRING: $query_string
+      REQUEST_METHOD: $request_method
+      CONTENT_TYPE: $content_type
+      CONTENT_LENGTH: $content_length
   dynamics_main:
-    vhost: 'dynamics'
+    vhost: '90-dynamics'
     www_root: '/var/www/hosts/$domain/docs'
-    try_files: "$uri $uri/ @rewrite"
+    try_files:
+      - '$uri'
+      - '$uri/'
+      - '/index.php?q=$uri&$args'
     location: '/'
     location_custom_cfg:
       index: index.html index.htm index.php
   dynamics_cgi:
-    vhost: 'dynamics'
+    vhost: '90-dynamics'
     www_root: '/var/www/hosts/$domain/docs'
     location: '~ [^/]\.php(/|$)'
     fastcgi: 'unix:/var/run/php5-fpm.sock'
@@ -81,7 +219,7 @@ pi_profiles::nginx::locations:
       CONTENT_TYPE: $content_type
       CONTENT_LENGTH: $content_length
   dynamics_static_stuff:
-    vhost: 'dynamics'
+    vhost: '90-dynamics'
     www_root: '/var/www/hosts/$domain/docs'
     location: '~* ^.+.(jpg|jpeg|gif|css|png|js|ico)$'
     location_cfg_append:
@@ -113,3 +251,31 @@ pi_profiles::ssh::authorized_keys:
 pi_profiles::owncloud::ssl: true
 pi_profiles::owncloud::servername: owncloud.pureinsomnia.com
 pi_profiles::owncloud::webserver: nginx
+
+# SSL
+letsencrypt::config:
+  email: letsencrypt@codethat.rocks
+pi_profiles::ssl::certs:
+  'codethat.rocks':
+    domains:
+      - www.codethat.rocks
+      - codethat.rocks
+    plugin: webroot
+    webroot_paths:
+      - /opt/webhosts/codethat.rocks/docs
+    manage_cron: true
+  'pureinsomnia.com':
+    domains:
+      - www.pureinsomnia.com
+      - pureinsomnia.com
+    plugin: webroot
+    webroot_paths:
+      - /opt/webhosts/pureinsomnia.com/docs
+    manage_cron: true
+  'eve.pureinsomnia.com':
+    domains:
+      - eve.pureinsomnia.com
+    plugin: webroot
+    webroot_paths:
+      - /opt/webhosts/eve.pureinsomnia.com/docs
+    manage_cron: true
